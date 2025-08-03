@@ -6,7 +6,7 @@ on:
       - "**/*.md"
 
 env:
-  SPACEPORT_REPO: Test # TODO change to `SpacemavenNative` when ready
+  SPACEPORT_READY: false # TODO change to `true` when ready
 
 jobs:
   build-and-publish:
@@ -14,15 +14,15 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            tasks: publishLinuxTargetsTo${{ env.SPACEPORT_REPO }}Repository
+            tasks: publishLinuxTargetsToSpacemavenNativeRepository
             cc: cc
             cxx: c++
           - os: windows-latest
-            tasks: publishWindowsTargetsTo${{ env.SPACEPORT_REPO }}Repository
+            tasks: publishWindowsTargetsToSpacemavenNativeRepository
             cc: cl
             cxx: cl
           - os: macos-latest
-            tasks: publishMacosTargetsTo${{ env.SPACEPORT_REPO }}Repository
+            tasks: publishMacosTargetsToSpacemavenNativeRepository
             cc: cc
             cxx: c++
     name: Build and Publish
@@ -56,6 +56,7 @@ jobs:
       - name: Build Project
         run: ./gradlew build
       - name: Publish Project
+        if: env.SPACEPORT_READY
         run: ./gradlew ${{ matrix.tasks }}
   finalize-publish:
     needs: build-and-publish
@@ -82,4 +83,5 @@ jobs:
           echo "spacemaven.user=${{ secrets.SPM_USERNAME }}" >> gradle.properties
           echo "spacemaven.key=${{ secrets.SPM_KEY }}" >> gradle.properties
       - name: Publish Project
-        run: ./gradlew publishCommonArtifactsTo${{ env.SPACEPORT_REPO }}Repository
+        if: env.SPACEPORT_READY
+        run: ./gradlew publishCommonArtifactsToSpacemavenNativeRepository
