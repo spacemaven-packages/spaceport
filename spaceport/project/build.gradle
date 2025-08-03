@@ -1,0 +1,52 @@
+dependencies {
+    // Spaceports can depend on other spaceports.
+    // These dependencies will be resolved and appear in the final artifact.
+    // The final linking step should transitively include everything specified here.
+    //
+    // Any compile / runtime artifacts required to use this spaceport should be specified
+    // here.
+
+    //implementation project(':spaceport:gtest-main')
+    //api project(':spaceport:gtest')
+}
+
+cmake {
+    publicHeadersArchive = tasks.register('packagePublicHeaders', Zip) {
+        // TODO update includes directory
+        from(rootProject.layout.projectDirectory.dir('downstream').dir('src').dir('include')) {
+            include 'project/**/*.h' // TODO update includes include
+        }
+
+        into '/'
+
+        archiveClassifier = 'api'
+        archiveBaseName = project.name
+        archiveVersion = project.version as String
+    }
+
+    configurations {
+        staticLibrary {
+            outputKind 'static'
+
+            targets {
+                // TODO update target name
+                register('project') {
+                    target 'project'
+                    outputSubDir 'lib'
+                }
+            }
+        }
+
+        sharedLibrary {
+            outputKind 'shared'
+
+            targets {
+                // TODO update target name
+                register('project') {
+                    target 'project'
+                    outputSubDir 'lib'
+                }
+            }
+        }
+    }
+}

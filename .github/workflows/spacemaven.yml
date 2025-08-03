@@ -1,0 +1,85 @@
+name: Build & Publish to Spacemaven Repository
+
+on:
+  push:
+    paths-ignore:
+      - "**/*.md"
+
+env:
+  SPACEPORT_REPO: Test # TODO change to `SpacemavenNative` when ready
+
+jobs:
+  build-and-publish:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            tasks: publishLinuxTargetsTo${{ env.SPACEPORT_REPO }}Repository
+            cc: cc
+            cxx: c++
+          - os: windows-latest
+            tasks: publishWindowsTargetsTo${{ env.SPACEPORT_REPO }}Repository
+            cc: cl
+            cxx: cl
+          - os: macos-latest
+            tasks: publishMacosTargetsTo${{ env.SPACEPORT_REPO }}Repository
+            cc: cc
+            cxx: c++
+    name: Build and Publish
+    runs-on: ${{ matrix.os }}
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          add-job-summary: on-failure
+          add-job-summary-as-pr-comment: on-failure
+          validate-wrappers: true
+      - name: Setup Publishing Properties
+        run: |
+          echo "spacemaven.user=${{ secrets.SPM_USERNAME }}" >> gradle.properties
+          echo "spacemaven.key=${{ secrets.SPM_KEY }}" >> gradle.properties
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1.4.1
+        if: matrix.os == 'windows-latest'
+      - name: Build Project
+        run: ./gradlew build
+      - name: Publish Project
+        run: ./gradlew ${{ matrix.tasks }}
+  finalize-publish:
+    needs: build-and-publish
+    name: Finalize Publication
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          add-job-summary: on-failure
+          add-job-summary-as-pr-comment: on-failure
+          validate-wrappers: true
+      - name: Setup Publishing Properties
+        run: |
+          echo "spacemaven.user=${{ secrets.SPM_USERNAME }}" >> gradle.properties
+          echo "spacemaven.key=${{ secrets.SPM_KEY }}" >> gradle.properties
+      - name: Publish Project
+        run: ./gradlew publishCommonArtifactsTo${{ env.SPACEPORT_REPO }}Repository

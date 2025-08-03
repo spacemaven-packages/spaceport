@@ -1,0 +1,6 @@
+plugins {
+    id 'net.derfruhling.cmake-wrapper' version '0.1.0-SNAPSHOT' apply false
+}
+
+group = 'net.derfruhling.spaceport'
+version = '1.0.0' // TODO Update version

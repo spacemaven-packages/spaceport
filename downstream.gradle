@@ -1,0 +1,8 @@
+/*
+ * This is interpreted as the build.gradle file of `downstream/`
+ *
+ * Any project configuration to happen in the downstream project itself should
+ * happen here. This may be used for IDE stuff or the like.
+ *
+ * Spaceport packages should keep their own state.
+ */

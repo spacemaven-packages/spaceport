@@ -1,0 +1,156 @@
+subprojects {
+    apply plugin: 'net.derfruhling.cmake-wrapper'
+    apply plugin: 'maven-publish'
+
+    group = rootProject.group
+    version = rootProject.version
+
+    cmake {
+        buildFile = rootProject.file('downstream/CMakeLists.txt')
+
+        targets {
+            linuxX64()
+            macosX64()
+            macosArm64()
+            windowsX64()
+        }
+
+        variants {
+            variant('debug', isDebuggable: true, isOptimized: false) {
+                define CMAKE_BUILD_TYPE: 'Debug'
+            }
+
+            variant('release', isDebuggable: false, isOptimized: true) {
+                define CMAKE_BUILD_TYPE: 'Release'
+            }
+
+            /*
+             * You can also define other variants like this:
+             *
+             * variant('relWithDebInfo', isDebuggable: false, isOptimized: true) {
+             *     define CMAKE_BUILD_TYPE: 'RelWithDebInfo'
+             * }
+             *
+             * variant('minSizeRel', isDebuggable: false, isOptimized: true) {
+             *     define CMAKE_BUILD_TYPE: 'MinSizeRel'
+             * }
+             *
+             * Variants contribute significantly to build time, however, and
+             * will create a new set of artifacts for each defined
+             * configuration.
+             */
+        }
+
+        configurations.configureEach {
+            def projectDir = rootProject.layout.projectDirectory.dir('downstream')
+
+            sourceDirectory = projectDir
+        }
+    }
+
+    publishing {
+        repositories {
+            /*
+             * Test repository is provided to ensure that the CMake wrapper is
+             * not misbehaving and the spaceport project is setup correctly.
+             *
+             * Please use it! Examine the module and pom files as a sanity
+             * check, and especially double-check that the main pom actually
+             * refers to all the platforms that might exist (but can't be
+             * published).
+             */
+            maven {
+                name 'test'
+                url rootProject.layout.buildDirectory.dir('test-repo')
+            }
+
+            maven {
+                name 'spacemavenNative'
+                url 'https://spacemaven.derfruhling.net/native/'
+
+                credentials {
+                    username rootProject.property('spacemaven.user') as String ?: 'anonymous'
+                    password rootProject.property('spacemaven.key') as String ?: 'anonymous'
+                }
+            }
+        }
+
+        publications {
+            register('maven', MavenPublication) {
+                from components.cmake
+            }
+
+            all {
+                pom {
+                    // TODO update project description
+                    description = '''
+                    This is an UNOFFICIAL package containing the [Project] project.
+                    
+                    [Description]
+                    
+                    Spaceport is a collection of projects built by the
+                    developer(s) of the Spacemaven repository to provide
+                    useful packages.
+                    '''.stripIndent()
+                    url = 'https://github.com/spacemaven-packages/googletest.spaceport' // TODO update project url
+
+                    // TODO add organization to POM if applicable.
+                    /* organization {
+                        name = 'Google'
+                        url = 'https://google.com/'
+                    } */
+
+                    developers {
+                        // TODO update original developers
+                        developer {
+                            name = '[Project] Developers and Contributors'
+                            url = 'https://example.com' // original project url
+                            roles = ['Development of Official Project']
+                        }
+
+                        // TODO your name here :P
+                        developer {
+                            name = 'der_frühling'
+                            email = 'daedula@derfruhling.net'
+                            url = 'https://derfruhling.net'
+                            roles = ['Spaceport Adaptation']
+                        }
+                    }
+
+                    // TODO update licensing
+                    licenses {
+                        // The main project licence. MUST be the same as the
+                        // original project's license, or must otherwise be
+                        // compatible (and specified in this repository).
+                        license {
+                            name = 'BSD-3-Clause'
+                            url = 'https://github.com/google/googletest/blob/main/LICENSE'
+                        }
+                    }
+
+                    scm {
+                        tag = 'v' + rootProject.version as String
+
+                        // TODO update repository connection
+                        connection = 'scm:git:https://github.com/spacemaven-packages/spaceport.git'
+                        developerConnection = 'scm:git:ssh:git@github.com:spacemaven-packages/spaceport.git'
+                    }
+
+                    issueManagement {
+                        system = 'GitHub'
+                        // TODO update issue tracker
+                        url = 'https://github.com/spacemaven-packages/spaceport/issues'
+                    }
+
+                    ciManagement {
+                        system = 'GitHub Actions'
+                        // TODO update actions
+                        url = 'https://github.com/spacemaven-packages/spaceport/actions'
+                    }
+
+                    url = 'https://spacemaven.derfruhling.net/net.derfruhling.spaceport/' + project.name
+                }
+            }
+        }
+    }
+}
