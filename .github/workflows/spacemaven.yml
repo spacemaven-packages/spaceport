@@ -16,6 +16,9 @@ on:
 jobs:
   build-and-publish:
     uses: spacemaven-packages/spaceport/.github/workflows/spacemaven.yml@workflows
+    permissions:
+      # needed for clear_cache
+      actions: write
     with:
       clear_cache: ${{ inputs.clear_cache || false }}
       publish_spaceport: false # TODO change to `true` when ready
