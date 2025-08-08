@@ -105,6 +105,7 @@ jobs:
   finalize-publish:
     needs: build-and-publish
     name: Finalize Publication
+    if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
