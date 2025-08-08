@@ -14,7 +14,8 @@ on:
       - "**/*.md"
 
 jobs:
-  build-and-publish:
+  yes-yes:
+    name: The Reusable Workflow
     uses: spacemaven-packages/spaceport/.github/workflows/spacemaven.yml@workflows
     permissions:
       # needed for clear_cache
