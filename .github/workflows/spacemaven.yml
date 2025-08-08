@@ -91,7 +91,6 @@ jobs:
           validate-wrappers: true
           cache-write-only: ${{ inputs.clear_cache || false }}
       - name: Setup Publishing Properties
-        if: ${{ inputs.publish_spaceport }}
         run: |
           echo "spacemaven.user=${{ secrets.spacemaven_user }}" >> gradle.properties
           echo "spacemaven.key=${{ secrets.spacemaven_key }}" >> gradle.properties
