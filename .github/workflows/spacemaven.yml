@@ -105,7 +105,6 @@ jobs:
   finalize-publish:
     needs: build-and-publish
     name: Finalize Publication
-    if: ${{ inputs.publish_spaceport }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -128,4 +127,5 @@ jobs:
           echo "spacemaven.user=${{ secrets.SPM_USERNAME }}" >> gradle.properties
           echo "spacemaven.key=${{ secrets.SPM_KEY }}" >> gradle.properties
       - name: Publish Project
+        if: ${{ inputs.publish_spaceport }}
         run: ./gradlew publishCommonArtifactsToSpacemavenNativeRepository
