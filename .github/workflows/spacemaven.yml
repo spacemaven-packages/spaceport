@@ -125,8 +125,8 @@ jobs:
           validate-wrappers: true
       - name: Setup Publishing Properties
         run: |
-          echo "spacemaven.user=${{ secrets.SPM_USERNAME }}" >> gradle.properties
-          echo "spacemaven.key=${{ secrets.SPM_KEY }}" >> gradle.properties
+          echo "spacemaven.user=${{ secrets.spacemaven_user }}" >> gradle.properties
+          echo "spacemaven.key=${{ secrets.spacemaven_key }}" >> gradle.properties
       - name: Publish Project
         if: ${{ inputs.publish_spaceport }}
         run: ./gradlew publishCommonArtifactsToSpacemavenNativeRepository
