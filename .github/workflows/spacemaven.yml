@@ -5,10 +5,19 @@ on:
     inputs:
       publish_spaceport:
         type: boolean
+        description: If true, publishes the spaceport after building (otherwise just build)
         default: false
       clear_cache:
         type: boolean
+        description: If true, clears the cache before running
         default: false
+    secrets:
+      spacemaven_user:
+        description: Your Spacemaven username to publish as
+        required: true
+      spacemaven_key:
+        description: Your Spacemaven key to publish with
+        required: true
 
 jobs:
   clear-cache:
@@ -84,8 +93,8 @@ jobs:
       - name: Setup Publishing Properties
         if: ${{ inputs.publish_spaceport }}
         run: |
-          echo "spacemaven.user=${{ secrets.SPM_USERNAME }}" >> gradle.properties
-          echo "spacemaven.key=${{ secrets.SPM_KEY }}" >> gradle.properties
+          echo "spacemaven.user=${{ secrets.spacemaven_user }}" >> gradle.properties
+          echo "spacemaven.key=${{ secrets.spacemaven_key }}" >> gradle.properties
       - name: Setup MSVC
         uses: ilammy/msvc-dev-cmd@v1.4.1
         if: matrix.os == 'windows-latest'
