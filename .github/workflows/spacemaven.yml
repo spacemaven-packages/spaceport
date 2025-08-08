@@ -22,3 +22,6 @@ jobs:
     with:
       clear_cache: ${{ inputs.clear_cache || false }}
       publish_spaceport: false # TODO change to `true` when ready
+    secrets:
+      spacemaven_user: ${{ secrets.SPM_USERNAME }}
+      spacemaven_key: ${{ secrets.SPM_KEY }}
